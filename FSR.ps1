@@ -1,6 +1,6 @@
 ﻿################################################################################
-#                              File System Reports                             #
-#                           Written By: MSgt Brechtel                          #
+#                            File System Reporter                              #
+#                     Written By: MSgt Anthony Brechtel                        #
 #                                                                              #
 ################################################################################
 #####Global Variables###########################################################
@@ -16,7 +16,7 @@ Add-Type -AssemblyName 'PresentationFramework'
 [System.Windows.Forms.Application]::EnableVisualStyles();
 ################################################################################
 clear-host
-$version="2.1"
+$version="2.2"
 $script:prompt_return = "Null";
 $script:excel_report = "Null" 
 $loading = New-Object System.Windows.Forms.Label
@@ -360,8 +360,19 @@ function csv_to_xlsx($output)
 
     $workbook.SaveAs($outputXLSX,51)
     $objExcel.Quit()
+
+    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($worksheet)
+    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($workbook)
+    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($objExcel)
+    [System.GC]::Collect()
+    [System.GC]::WaitForPendingFinalizers()
+
+
     $script:excel_report = $outputXLSX;
-    Remove-Item "$dir\Results\$output"
+    if(Test-Path -literalpath $outputXLSX)
+    {
+        Remove-Item "$dir\Results\$output"
+    }
 }
 ################################################################################
 ######Show Console##############################################################
